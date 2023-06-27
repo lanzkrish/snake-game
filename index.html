@@ -3,8 +3,32 @@
 <head>
     <title>Snake Game</title>
     <style>
-        #gameCanvas {
+        body {
+            
+            height: 100vh;
+            margin: 0;
             background-color: #b8b5b5;
+            font-family: Arial, sans-serif;
+        }
+
+        #gameCanvas {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .controls button {
+            width: 50px;
+            height: 50px;
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -13,10 +37,11 @@
     <p>High Score: <span id="highScore">0</span></p>
     <p>Current Score: <span id="currentScore">0</span></p>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
+    
     <div class="controls">
+        <button class="left-button">&#x2190;</button>
         <button class="up-button">&#x2191;</button>
         <button class="down-button">&#x2193;</button>
-        <button class="left-button">&#x2190;</button>
         <button class="right-button">&#x2192;</button>
     </div>
 
@@ -174,16 +199,22 @@
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw the snake body
-            context.fillStyle = "#00FF00";
+            const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, "#00FF00");
+            gradient.addColorStop(1, "#009900");
+
             snake.forEach((segment, index) => {
                 const segmentSize = segment.size * gridSize; // Size of the segment
 
+                context.fillStyle = gradient;
                 context.fillRect(
                     segment.x * gridSize,
                     segment.y * gridSize,
                     segmentSize,
                     gridSize
                 );
+
+                gradient.addColorStop(index / snake.length, "#009900");
             });
 
             // Draw the snake head
@@ -240,5 +271,9 @@
         // Start the game loop
         setInterval(gameLoop, 100); // Adjust the interval to control the game speed
     </script>
+
+
 </body>
+<button><a href="p1.html">2nd page</a></button>
+<button><a href="snake_game.html">3rd page</a></button>
 </html>
