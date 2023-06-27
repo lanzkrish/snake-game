@@ -13,6 +13,12 @@
     <p>High Score: <span id="highScore">0</span></p>
     <p>Current Score: <span id="currentScore">0</span></p>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button class="up-button">&#x2191;</button>
+        <button class="down-button">&#x2193;</button>
+        <button class="left-button">&#x2190;</button>
+        <button class="right-button">&#x2192;</button>
+    </div>
 
     <script>
         // Get the canvas element and its context
@@ -62,17 +68,44 @@
             };
         }
 
-        // Function to handle keyboard input
+        // Function to handle input from keyboard and buttons
         function handleInput(event) {
             if (!gameOver) {
-                if (event.key === "ArrowUp" && direction !== "down")
+                if (
+                    event.type === "keydown" &&
+                    (event.key === "ArrowUp" || event.key === "w") &&
+                    direction !== "down"
+                )
                     direction = "up";
-                else if (event.key === "ArrowDown" && direction !== "up")
+                else if (
+                    event.type === "keydown" &&
+                    (event.key === "ArrowDown" || event.key === "s") &&
+                    direction !== "up"
+                )
                     direction = "down";
-                else if (event.key === "ArrowLeft" && direction !== "right")
+                else if (
+                    event.type === "keydown" &&
+                    (event.key === "ArrowLeft" || event.key === "a") &&
+                    direction !== "right"
+                )
                     direction = "left";
-                else if (event.key === "ArrowRight" && direction !== "left")
+                else if (
+                    event.type === "keydown" &&
+                    (event.key === "ArrowRight" || event.key === "d") &&
+                    direction !== "left"
+                )
                     direction = "right";
+                else if (event.type === "click") {
+                    const buttonClass = event.target.className;
+                    if (buttonClass === "up-button" && direction !== "down")
+                        direction = "up";
+                    else if (buttonClass === "down-button" && direction !== "up")
+                        direction = "down";
+                    else if (buttonClass === "left-button" && direction !== "right")
+                        direction = "left";
+                    else if (buttonClass === "right-button" && direction !== "left")
+                        direction = "right";
+                }
             } else {
                 restartGame();
             }
@@ -197,6 +230,12 @@
 
         // Set up keyboard input handling
         document.addEventListener("keydown", handleInput);
+
+        // Set up button input handling
+        const buttons = document.getElementsByClassName("controls")[0].getElementsByTagName("button");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener("click", handleInput);
+        }
 
         // Start the game loop
         setInterval(gameLoop, 100); // Adjust the interval to control the game speed
