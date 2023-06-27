@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Game</title>
+    <style>
+        #gameCanvas {
+            background-color: #b8b5b5;
+        }
+    </style>
+</head>
+<body>
+    <h2>Snake Game</h2>
+    <p>High Score: <span id="highScore">0</span></p>
+    <p>Current Score: <span id="currentScore">0</span></p>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <script>
+        // Get the canvas element and its context
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        // Define the size of each grid cell and the number of cells
+        const gridSize = 20;
+        const gridWidth = canvas.width / gridSize;
+        const gridHeight = canvas.height / gridSize;
+
+        // Initialize the snake's starting position and direction
+        let snake = [{ x: 10, y: 10, size: 1 }];
+        let direction = "right";
+
+        // Load the food image
+        const foodImage = new Image();
+        foodImage.src = "1apple.png"; // Replace with the path to your food image
+
+        // Generate a random position for the food
+        let food = generateFoodPosition();
+
+        // Variables for high score and current score
+        let highScore = 0;
+        let currentScore = 0;
+
+        // Game over flag and restart function
+        let gameOver = false;
+
+        function restartGame() {
+            if (gameOver) {
+                // Reset the game state
+                snake = [{ x: 10, y: 10, size: 1 }];
+                direction = "right";
+                food = generateFoodPosition();
+                currentScore = 0;
+                document.getElementById("currentScore").textContent = currentScore;
+                gameOver = false;
+            }
+        }
+
+        // Function to generate a random position for the food
+        function generateFoodPosition() {
+            return {
+                x: Math.floor(Math.random() * gridWidth),
+                y: Math.floor(Math.random() * gridHeight)
+            };
+        }
+
+        // Function to handle keyboard input
+        function handleInput(event) {
+            if (!gameOver) {
+                if (event.key === "ArrowUp" && direction !== "down")
+                    direction = "up";
+                else if (event.key === "ArrowDown" && direction !== "up")
+                    direction = "down";
+                else if (event.key === "ArrowLeft" && direction !== "right")
+                    direction = "left";
+                else if (event.key === "ArrowRight" && direction !== "left")
+                    direction = "right";
+            } else {
+                restartGame();
+            }
+        }
+
+        // Function to update the game state
+        function update() {
+            if (gameOver) {
+                return;
+            }
+
+            // Get the new head position based on the direction
+            let newHead = { x: snake[0].x, y: snake[0].y };
+
+            if (direction === "up")
+                newHead.y--;
+            else if (direction === "down")
+                newHead.y++;
+            else if (direction === "left")
+                newHead.x--;
+            else if (direction === "right")
+                newHead.x++;
+
+            // Check if the new head position is outside the canvas or collides with the snake
+            if (
+                newHead.x < 0 ||
+                newHead.x >= gridWidth ||
+                newHead.y < 0 ||
+                newHead.y >= gridHeight ||
+                snake.some(segment => segment.x === newHead.x && segment.y === newHead.y)
+            ) {
+                // Update high score if necessary
+                if (currentScore > highScore) {
+                    highScore = currentScore;
+                    document.getElementById("highScore").textContent = highScore;
+                }
+
+                // Game over, set the flag
+                gameOver = true;
+                return;
+            }
+
+            // Add the new head to the snake
+            snake.unshift({ ...newHead, size: snake[0].size });
+
+            // Check if the snake has reached the food
+            if (newHead.x === food.x && newHead.y === food.y) {
+                // Increase the current score and generate new food
+                currentScore++;
+                document.getElementById("currentScore").textContent = currentScore;
+                food = generateFoodPosition();
+            } else {
+                // Remove the tail segment
+                snake.pop();
+            }
+
+            // Adjust the tail segments
+            for (let i = 1; i < snake.length; i++) {
+                snake[i].size = Math.max(snake[i - 1].size - 1, 1);
+            }
+        }
+
+        // Function to draw the game state
+        function draw() {
+            // Clear the canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the snake body
+            context.fillStyle = "#00FF00";
+            snake.forEach((segment, index) => {
+                const segmentSize = segment.size * gridSize; // Size of the segment
+
+                context.fillRect(
+                    segment.x * gridSize,
+                    segment.y * gridSize,
+                    segmentSize,
+                    gridSize
+                );
+            });
+
+            // Draw the snake head
+            const headSize = gridSize; // Size of the head
+            const headOffset = (gridSize - headSize) / 2; // Offset to center the head
+
+            context.fillStyle = "#FF0000";
+            context.fillRect(
+                snake[0].x * gridSize + headOffset,
+                snake[0].y * gridSize + headOffset,
+                headSize,
+                headSize
+            );
+
+            // Draw the eyes
+            const eyeSize = gridSize / 4; // Size of the eyes
+            const eyeOffset = gridSize / 8; // Offset to position the eyes
+
+            context.fillStyle = "#FFFFFF";
+            context.fillRect(
+                snake[0].x * gridSize + eyeOffset,
+                snake[0].y * gridSize + eyeOffset,
+                eyeSize,
+                eyeSize
+            );
+
+            context.fillRect(
+                snake[0].x * gridSize + gridSize - eyeSize - eyeOffset,
+                snake[0].y * gridSize + eyeOffset,
+                eyeSize,
+                eyeSize
+            );
+
+            // Draw the food image
+            const foodImageSize = gridSize; // Size of the food image
+            context.drawImage(foodImage, food.x * gridSize, food.y * gridSize, foodImageSize, foodImageSize);
+        }
+
+        // Function to run the game loop
+        function gameLoop() {
+            update();
+            draw();
+        }
+
+        // Set up keyboard input handling
+        document.addEventListener("keydown", handleInput);
+
+        // Start the game loop
+        setInterval(gameLoop, 100); // Adjust the interval to control the game speed
+    </script>
+</body>
+</html>
